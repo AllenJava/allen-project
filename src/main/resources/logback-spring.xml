@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+<!-- application.properities中配置的变量 -->
+<springProperty scope="context" name="logLevel" source="log.level"/>
+<springProperty scope="context" name="logPath" source="log.path"/>
+<springProperty scope="context" name="logName" source="log.name"/>
+
+<!-- 控制台输出 -->
+<appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+     <encoder>
+         <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
+     </encoder>
+</appender>
+
+<!-- 日志文件输出 -->
+<appender name="file" class="ch.qos.logback.core.rolling.RollingFileAppender">
+     <file>${logPath}/${logName}.log</file>
+     <encoder>
+         <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
+     </encoder>  
+     <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+           <!-- 每天一归档 -->
+           <fileNamePattern>${logPath}/${logName}.%d{yyyy-MM-dd}.%i.log.zip</fileNamePattern>
+           <!-- 单个日志文件最多 100MB, 30天的日志周期，最大不能超过20GB -->
+		   <maxFileSize>100MB</maxFileSize>    
+		   <maxHistory>30</maxHistory>
+		   <totalSizeCap>20GB</totalSizeCap>
+     </rollingPolicy>
+</appender>
+
+<!-- 日志输出级别 -->
+<root level="${logLevel}">
+   <appender-ref ref="console"/>
+   <appender-ref ref="file"/>
+</root>
+
+</configuration>
