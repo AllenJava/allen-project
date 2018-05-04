@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
@@ -41,6 +42,13 @@ public class RedisConfig {
 		redisTemplate.setHashValueSerializer(stringSerializer);
 		
 		return redisTemplate;
+	}
+	
+	@Bean
+	public StringRedisTemplate stringRedisTemplate(RedisConnectionFactory redisConnectionFactory){
+		StringRedisTemplate stringRedisTemplate=new StringRedisTemplate();
+		stringRedisTemplate.setConnectionFactory(redisConnectionFactory);
+		return stringRedisTemplate;
 	}
 
 }
