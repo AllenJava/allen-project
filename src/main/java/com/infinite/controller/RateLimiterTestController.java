@@ -19,7 +19,7 @@ import com.infinite.controller.vo.ResultBean;
 @RestController
 public class RateLimiterTestController {
 	
-	/**一秒生成5个令牌**/
+	/**令牌桶容量，一秒生成5个令牌**/
 	private static final double PERMITS=5;
 	
 	RateLimiter rateLimiter=RateLimiter.create(PERMITS);
