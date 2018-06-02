@@ -36,5 +36,11 @@ public class ApplicationTests {
 			
 		}
 	}
+	
+	@Test
+	public void testRestConfig(){
+		String result=this.restTemplate.postForObject("http://localhost:2222/api/order/queryList", null, String.class);
+		System.out.println(result);
+	}
 
 }
