@@ -19,12 +19,12 @@ import com.infinite.controller.vo.ResultBean;
 @RestController
 public class ActiveMQTestController {
 	
-	@Autowired
-	private Producer producer;
+//	@Autowired
+//	private Producer producer;
 
-	@RequestMapping(value="/activeMQ/test/addMessage")
-	public ResultBean<Object> addMessage(@RequestParam(required=true) String type, @RequestParam(required=true) String message){
-		this.producer.send(Integer.parseInt(type), message);
-		return new ResultBean<Object>();
-	}
+//	@RequestMapping(value="/activeMQ/test/addMessage")
+//	public ResultBean<Object> addMessage(@RequestParam(required=true) String type, @RequestParam(required=true) String message){
+//		this.producer.send(Integer.parseInt(type), message);
+//		return new ResultBean<Object>();
+//	}
 }

@@ -25,6 +25,23 @@ import com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter;
  */
 @Configuration
 public class RestTemplateConfig {
+	/**连接池最大连接数**/
+	private final int maxTotal=2000;
+	
+	/**同路由最大并发数**/
+	private final int defaultMaxPerRoute=200;
+	
+	/**重试次数**/
+	private final int retryCount=3;
+	
+	/**连接超时时间**/
+	private final int connectTimeout=5000;
+	
+	/**数据读取超时时间**/
+	private final int readTimeout=10000;
+	
+	/**连接不够用时的等待时间**/
+	private final int connectionRequestTimeout=5000;
 	
 	/**
 	 * 初始化RestTemplate
@@ -52,13 +69,13 @@ public class RestTemplateConfig {
 		 */
 		PoolingHttpClientConnectionManager poolingHttpClientConnectionManager=new PoolingHttpClientConnectionManager();
 		//最大连接数
-		poolingHttpClientConnectionManager.setMaxTotal(2000);
+		poolingHttpClientConnectionManager.setMaxTotal(maxTotal);
 		//同路由最大并发数（限制实际使用数量是由DefaultMaxPerRoute决定，而非MaxTotal，如果DefaultMaxPerRoute设置过小，无法支持大并发请求）
-		poolingHttpClientConnectionManager.setDefaultMaxPerRoute(200);
+		poolingHttpClientConnectionManager.setDefaultMaxPerRoute(defaultMaxPerRoute);
 		httpClientBuilder.setConnectionManager(poolingHttpClientConnectionManager);
 		
 		//重试次数（默认不开启用，即false）
-		httpClientBuilder.setRetryHandler(new DefaultHttpRequestRetryHandler(3,true));
+		httpClientBuilder.setRetryHandler(new DefaultHttpRequestRetryHandler(retryCount,true));
 		
 		/**
 		 * 创建http客户端对象
@@ -70,11 +87,11 @@ public class RestTemplateConfig {
 		 */
 		HttpComponentsClientHttpRequestFactory clientHttpRequestFactory=new HttpComponentsClientHttpRequestFactory(httpClient);
 		//连接超时时间
-		clientHttpRequestFactory.setConnectTimeout(2000);
+		clientHttpRequestFactory.setConnectTimeout(connectTimeout);
 		//数据读取超时时间
-		clientHttpRequestFactory.setReadTimeout(20000);
+		clientHttpRequestFactory.setReadTimeout(readTimeout);
 		//连接不够用时的等待时间
-		clientHttpRequestFactory.setConnectionRequestTimeout(5000);
+		clientHttpRequestFactory.setConnectionRequestTimeout(connectionRequestTimeout);
 		
 		return clientHttpRequestFactory;
 	}

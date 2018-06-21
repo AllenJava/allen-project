@@ -15,7 +15,7 @@ import com.infinite.common.constant.Constants;
 * @date 2018年5月3日 上午11:34:10
 *
  */
-@Component
+//@Component
 public class Consumer {
 	
 	private static final Logger LOG=LoggerFactory.getLogger(Consumer.class);
