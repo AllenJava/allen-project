@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.github.pagehelper.PageHelper;
@@ -21,6 +22,7 @@ import com.infinite.dao.po.UserInfo;
 import com.infinite.service.UserInfoService;
 import com.infinite.service.bo.UserInfoAdd;
 import com.infinite.service.bo.UserInfoQuery;
+import com.infinite.service.cache.UserInfoCache;
 import com.infinite.service.dto.SsoUserQuery;
 
 /**
@@ -36,6 +38,9 @@ public class UserInfoController {
 
 	@Autowired
 	private UserInfoService userInfoService;
+	
+	@Autowired
+	private UserInfoCache userInfoCache;
 	
 	/**
 	 * 查询列表
@@ -67,7 +72,7 @@ public class UserInfoController {
 	}
 	
 	/**
-	 * 测试session和cookies
+	 * 测试session和cookies 
 	 */
 	@RequestMapping(value="/user/testSessionAndCookies",method=RequestMethod.GET)
 	public ResultBean<String> testSessionAndCookies(String browseName,HttpServletRequest request,HttpSession sesssion){
@@ -82,6 +87,13 @@ public class UserInfoController {
 			System.out.println(cookie.getName()+":"+cookie.getValue());
 		}
 		return new ResultBean<>();
+	}
+	
+	@RequestMapping(value="/user/cache/info")
+	public ResultBean<UserInfo> getUserInfoFromCache(@RequestParam Integer userId){
+	    //return new ResultBean<>(this.userInfoCache.getUserInfo(userId));
+	    //return new ResultBean<>(this.userInfoCache.getUserInfoByMutex(userId));
+	    return new ResultBean<UserInfo>(this.userInfoCache.getUserInfoByValueTime(userId));
 	}
 
 }
