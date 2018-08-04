@@ -19,7 +19,7 @@ import com.infinite.common.constant.Constants;
 * @date 2018年5月3日 上午11:24:28
 *
  */
-@Component
+//@Component
 public class Producer {
 	
 	private static final Logger LOG=LoggerFactory.getLogger(Producer.class);
