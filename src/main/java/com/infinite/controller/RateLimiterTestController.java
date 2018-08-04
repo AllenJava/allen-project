@@ -1,5 +1,6 @@
 package com.infinite.controller;
 
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -39,6 +40,58 @@ public class RateLimiterTestController {
         String orderNo="NO"+System.currentTimeMillis();
 		System.out.println("获取成功："+orderNo);
 		return new ResultBean<String>(orderNo);
+	}
+	
+	public static void main(String[] args) throws Exception {
+		/**
+		 * 平滑限流
+		 */
+		RateLimiter rateLimiter=RateLimiter.create(5);
+		/**
+		 * acquire令牌桶中有足够令牌时，则直接消费，
+		 * 没有足够时，则消费未来的令牌，后续acquire调用时，需要等待已消费的未来令牌生产所需时长
+		 */
+		System.out.println("a:"+rateLimiter.acquire(5));
+		TimeUnit.SECONDS.sleep(1);
+		System.out.println("b:"+rateLimiter.acquire(5));
+		TimeUnit.SECONDS.sleep(1);
+		System.out.println("c:"+rateLimiter.acquire(1));
+		System.out.println("d:"+rateLimiter.acquire(1));
+		
+		for (int i = 0; i < 10; i++) {
+			new Thread(new Runnable() {
+				@Override
+				public void run() {
+					// TODO Auto-generated method stub
+					rateLimiter.acquire(5);
+					System.out.println(Thread.currentThread().getName()+":"+System.currentTimeMillis());
+				}
+			}).start();
+		}
+		
+		/**
+		 * 简单限流
+		 */
+		Semaphore semaphore=new Semaphore(5);
+		Long startTime=System.currentTimeMillis();
+		for (int i = 0; i < 10; i++) {
+			new Thread(new Runnable() {
+				@Override
+				public void run() {
+					// TODO Auto-generated method stub
+					try {
+						semaphore.acquire();
+						System.out.println(Thread.currentThread().getName()+":"+System.currentTimeMillis());
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}finally {
+						//semaphore.release();
+					}
+				}
+			}).start();
+		}
+		System.out.println("消耗时长："+(System.currentTimeMillis()-startTime));
 	}
 
 }
