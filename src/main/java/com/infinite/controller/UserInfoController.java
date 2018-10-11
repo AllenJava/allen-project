@@ -46,7 +46,7 @@ public class UserInfoController {
 	 * 查询列表
 	 */
 	@RequestMapping(value="/user/queryList",method=RequestMethod.POST)
-	@LoginRequire
+	//@LoginRequire
 	public ResultBean<PageInfo<UserExtendInfo>> queryList(@RequestBody UserInfoQuery request){
 		PageHelper.startPage(request.getPageNum(), request.getPageSize());
 		return new ResultBean<>(new PageInfo<>(this.userInfoService.findByCondition(request)));

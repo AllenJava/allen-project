@@ -5,11 +5,14 @@ import java.util.List;
 import javax.annotation.Resource;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.slf4j.Logger;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.infinite.common.exception.BusinessException;
+import com.infinite.common.utils.LoggerUtil;
+import com.infinite.common.utils.LoggerUtil.LogFileName;
 import com.infinite.dao.PermissionInfoMapper;
 import com.infinite.dao.UserInfoMapper;
 import com.infinite.dao.po.PermissionInfo;
@@ -44,10 +47,13 @@ public class UserInfoService {
 	@Resource
 	private UserInfoService userInfoService;
 	
+	Logger logger=LoggerUtil.Logger(LogFileName.USER_SERVICE);
+	
 	/**
 	 * 根据条件查询用户列表
 	 */
 	public List<UserExtendInfo> findByCondition(UserInfoQuery userInfoQuery){
+	    logger.info("根据条件查询用户列表:{}",userInfoQuery);
 		return this.userInfoMapper.findByCondition(userInfoQuery);
 	}
 	
