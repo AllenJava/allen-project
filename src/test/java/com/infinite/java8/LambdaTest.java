@@ -6,6 +6,9 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 public class LambdaTest {
     
@@ -33,10 +36,12 @@ public class LambdaTest {
             int result=e1.compareTo(e2);
             return result;
         });
-        System.out.println(Arrays.asList(sortArr));     
+        System.out.println(Arrays.asList(sortArr));  
+        
+        
         
         /**
-         * 函数接口使用
+         * 自定义函数接口使用
          */
         List<Apple> appleList=new ArrayList<>();
         appleList.add(new Apple("red", 100.00));
@@ -73,6 +78,9 @@ public class LambdaTest {
         System.out.println(yellowAppleList);
         System.out.println(weightAppleList3);
         
+        
+        
+        
         /**
          * Lambda排序
          */
@@ -91,6 +99,49 @@ public class LambdaTest {
         //实现3：使用Collections（Lambda表达式实现）
         Collections.sort(appleList, (Apple apple1,Apple apple2)->apple2.getWeight().compareTo(apple1.getWeight()));
         System.out.println(appleList);
+        
+        
+        
+        
+        /**
+         * API自带几个函数接口
+         */
+        //1.Predicate
+        Predicate<Apple> applePredicate=new Predicate<Apple>() {           
+            @Override
+            public boolean test(Apple apple) {
+                return Objects.equals("red", apple.getColor());
+            }
+        };
+        List<Apple> appleFilterList=filterList(appleList, applePredicate);
+        System.out.println(appleFilterList);
+        List<Apple> appleFilterList2=filterList(appleList, (Apple apple)->apple.getWeight()>150);
+        System.out.println(appleFilterList2);
+        
+        //2.Consumer
+        Consumer<Apple> appleConsumer=new Consumer<Apple>() {  
+            @Override
+            public void accept(Apple apple) {
+                System.out.println(apple);
+            }
+        };
+        printList(appleList, appleConsumer);
+        printList(appleList, (Apple apple)->{
+            System.out.println(apple);
+            System.out.println("~~~");
+        });
+        
+        //3.Function
+        Function<Apple, String> appleFunction=new Function<Apple, String>() {           
+            @Override
+            public String apply(Apple t) {              
+                return t.getWeight()<=150?t.getColor():null;
+            }
+        };
+        List<String> appleColors=functionList(appleList, appleFunction);
+        System.out.println(appleColors);
+        List<String> appleColors2=functionList(appleList, (Apple apple)->apple.getWeight()>=180?apple.getColor():null);
+        System.out.println(appleColors2);
     }
     
     /**
@@ -187,6 +238,42 @@ public class LambdaTest {
         for (Apple apple : appleList) {
             if(prediate.isMatched(apple)){
                 resultList.add(apple);
+            }
+        }
+        return resultList;
+    }
+    
+    /**
+     * 根据Java 8 API函数接口 [Predicate]实例操作方法
+     */
+    public static <T> List<T> filterList(List<T> list,Predicate<T> predicate){
+        List<T> resultList=new ArrayList<>();
+        for (T object : list) {
+            if(predicate.test(object)){
+                resultList.add(object);
+            }
+        }
+        return resultList;
+    }
+    
+    /**
+     * 根据Java 8 API函数接口 [Consumer]实例操作方法
+     */
+    public static <T> void printList(List<T> list,Consumer<T> consumer){
+        for (T t : list) {
+            consumer.accept(t);
+        }
+    }
+    
+    /**
+     * 根据Java 8 API函数接口 [Function]实例操作方法
+     */
+    public static <T,R> List<R> functionList(List<T> list,Function<T,R> function){
+        List<R> resultList=new ArrayList<>();
+        for (T t : list) {
+            R r=function.apply(t);
+            if(r!=null){
+                resultList.add(r); 
             }
         }
         return resultList;
