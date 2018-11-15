@@ -6,15 +6,37 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
+import java.util.IntSummaryStatistics;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import com.google.common.base.Objects;
+
 public class StreamTest {
     
-    public static void main(String[] args) {       
+    public static void main(String[] args) {
+        List<Menu> menuList=new ArrayList<>();
+        menuList.add(new Menu("pork", "meat", 20.0, 200));
+        menuList.add(new Menu("beef", "meat", 50.0, 300));
+        menuList.add(new Menu("chicken", "meat", 15.0, 150));
+        menuList.add(new Menu("prawns", "fish", 80.0, 180));
+        menuList.add(new Menu("salmon", "fish", 100.0, 220));
+        menuList.add(new Menu("apple", "fruit", 20.0, 50));
+        menuList.add(new Menu("orange", "fruit", 20.0, 60));
+        menuList.add(new Menu("banana", "fruit", 15.0, 45));
+        menuList.add(new Menu("rice", "other", 8.0, 80));
+        menuList.add(new Menu("pizza", "other", 88.0, 130));
+        menuList.add(new Menu("noodle", "other", 30.0, 90));
+        
+        /**
+         * ------------------------使用流 START--------------------------------
+         */
         /**
          * 流操作：映射
          */
@@ -64,11 +86,6 @@ public class StreamTest {
         /**
          * 归约
          */
-        List<Menu> menuList=new ArrayList<>();
-        menuList.add(new Menu("A", 20.0, 100));
-        menuList.add(new Menu("B", 30.0, 180));
-        menuList.add(new Menu("C", 50.0, 220));
-        menuList.add(new Menu("D", 80.0, 300));
         //元素求和
         double totalPrice=menuList.stream().map(Menu::getPrice).reduce(0.0, (a,b)->a+b);
         Optional<Double> totalPriceOptional=menuList.stream().map(Menu::getPrice).reduce((a,b)->a+b);
@@ -148,7 +165,108 @@ public class StreamTest {
         Stream.iterate(0, n->n+2).limit(10).forEach(System.out::println);
         //generate(无状态，生成的新值不会作为函数的入参)
         Stream.generate(Math::random).limit(10).forEach(System.out::println);
+        /**
+         * ------------------------使用流 END--------------------------------
+         */
         
+        /**
+         * ------------------------用流收集数据  START---------------------------
+         */
+        /**
+         * 收集器汇总和归约
+         */
+        //Collectors.counting
+        long count1=menuList.stream().collect(Collectors.counting());
+        System.out.println(count1);
+        //count()
+        count1=menuList.stream().count();
+        System.out.println(count1);
+        
+        //查找流中的最大值和最小值:Collectors.maxBy、Collectors.minBy
+        Comparator<Menu> comparator=Comparator.comparingInt(Menu::getCalories);
+        Optional<Menu> maxMenuOptional=menuList.stream().collect(Collectors.maxBy(comparator));
+        System.out.println(maxMenuOptional.get());
+        Optional<Menu> minMenuOptional=menuList.stream().collect(Collectors.minBy(comparator));
+        System.out.println(minMenuOptional.get());
+        
+        //汇总Collectors.summingInt、Collectors.averagingInt、Collectors.summarizingInt
+        int totalCalorie=menuList.stream().collect(Collectors.summingInt(Menu::getCalories));
+        System.out.println(totalCalorie);
+        //平均值
+        double averageCalorie=menuList.stream().collect(Collectors.averagingInt(Menu::getCalories));
+        System.out.println(averageCalorie);
+        //各个统计属性汇总IntSummaryStatistics
+        IntSummaryStatistics intSummaryStatistics=menuList.stream().collect(Collectors.summarizingInt(Menu::getCalories));
+        System.out.println(
+                "sum:"+intSummaryStatistics.getSum()+" count:"+intSummaryStatistics.getCount()+" max:"+intSummaryStatistics.getMax()+" min:"+intSummaryStatistics.getMin()+" average:"+intSummaryStatistics.getAverage()
+        );
+        
+        //连接字符串:Collectors.joining
+        String joinMenuName=menuList.stream().map(Menu::getName).collect(Collectors.joining());
+        System.out.println(joinMenuName);
+        joinMenuName=menuList.stream().map(Menu::getName).collect(Collectors.joining(","));
+        System.out.println(joinMenuName);
+        
+        /**
+         * 分组:Collectors.groupingBy
+         */
+        Map<String, List<Menu>> groupByMenuType=menuList.stream().collect(Collectors.groupingBy(Menu::getType));
+        System.out.println(groupByMenuType);
+        Map<String, List<Menu>> groupByCalories=menuList.stream().collect(Collectors.groupingBy(menu -> {
+            if(menu.getCalories()>=150) return "FAT";
+            if(menu.getCalories()<150 && menu.getCalories()>=100) return "NORMAL";
+            return "HEALTHY";
+        }));
+        System.out.println(groupByCalories); 
+        //多级分组
+        Map<String, Map<String, List<Menu>>> multiGroupResult=menuList.stream().collect(Collectors.groupingBy(Menu::getType,Collectors.groupingBy(menu -> { 
+            if(menu.getCalories()>=150) return "FAT";
+            if(menu.getCalories()<150 && menu.getCalories()>=100) return "NORMAL";
+            return "HEALTHY";
+        })));
+        System.out.println(multiGroupResult);
+        //Collectors.groupingBy(分组类型,其他收集器)
+        //Collectors.groupingBy(分组类型,counting())
+        Map<String, Long> groupCountResult=menuList.stream().collect(Collectors.groupingBy(Menu::getType,Collectors.counting()));
+        System.out.println(groupCountResult);
+        Map<String, Optional<Menu>> groupMaxOptionalResult=
+                menuList.stream().collect(Collectors.groupingBy(Menu::getType,Collectors.maxBy(Comparator.comparing(Menu::getCalories))));
+        System.out.println(groupMaxOptionalResult);
+        //Collectors.collectingAndThen
+        Map<String, Menu> groupMaxResult=
+                menuList.stream().collect(Collectors.groupingBy(Menu::getType,Collectors.collectingAndThen(Collectors.maxBy(Comparator.comparing(Menu::getCalories)), Optional::get)));
+        System.out.println(groupMaxResult);
+        //Collectors.groupingBy(分组类型,summingInt)
+        Map<String, Integer> groupSumResult=menuList.stream().collect(Collectors.groupingBy(Menu::getType,Collectors.summingInt(Menu::getCalories)));
+        System.out.println(groupSumResult);
+        //Collectors.groupingBy(分组类型,Collectors.mapping(自定义lambda表达式|Function,收集器))
+        Map<String, Set<String>> groupMappingResult=menuList.stream().collect(Collectors.groupingBy(Menu::getType,Collectors.mapping(menu -> {
+            if(menu.getCalories()>=150) return "FAT";
+            if(menu.getCalories()<150 && menu.getCalories()>=100) return "NORMAL";
+            return "HEALTHY";
+        },Collectors.toSet())));
+        System.out.println(groupMappingResult);
+        
+        /**
+         * 分区
+         */
+        //Collectors.partitioningBy
+        Map<Boolean, List<Menu>> partitioningResult=menuList.stream().collect(Collectors.partitioningBy(Menu::isFruit));
+        List<Menu> fruitResult=partitioningResult.get(true);
+        System.out.println(fruitResult);
+        //谓词+filter实现同样效果
+        fruitResult=menuList.stream().filter(Menu::isFruit).collect(Collectors.toList());
+        System.out.println(fruitResult);
+        //Collectors.partitioningBy(分区函数,Collectors.groupingBy收集器)
+        Map<Boolean, Map<String, List<Menu>>> partitioningGroupResult=
+                menuList.stream().collect(Collectors.partitioningBy(Menu::isFruit,Collectors.groupingBy(Menu::getType)));
+        System.out.println(partitioningGroupResult);
+        //Collectors.partitioningBy(分区函数,Collectors.collectingAndThen(Collectors.maxBy(comparator), Optional::get))
+        Map<Boolean, Menu> maxCaloriesMenu=menuList.stream().collect(Collectors.partitioningBy(Menu::isFruit,Collectors.collectingAndThen(Collectors.maxBy(Comparator.comparing(Menu::getCalories)), Optional::get)));
+        System.out.println(maxCaloriesMenu);       
+        /**
+         * ------------------------用流收集数据  END---------------------------
+         */
     }
     
     
@@ -191,17 +309,25 @@ public class StreamTest {
      */
     public static class Menu{
         private String name;
+        private String type;
         private Double price;
         /**热量/卡路里**/
         private Integer calories;
         
-        public Menu(String name,Double price,Integer calories){
+        public Menu(String name,String type,Double price,Integer calories){
             this.name=name;
+            this.type=type;
             this.price=price;
             this.calories=calories;
         }
         public String getName() {
             return name;
+        }
+        public String getType() {
+            return type;
+        }
+        public void setType(String type) {
+            this.type = type;
         }
         public void setName(String name) {
             this.name = name;
@@ -217,6 +343,16 @@ public class StreamTest {
         }
         public void setCalories(Integer calories) {
             this.calories = calories;
+        }
+        
+        public static boolean isFruit(Menu menu){
+            if(menu==null) return false;
+            return Objects.equal("fruit", menu.getType())?true:false;
+        }
+        
+        @Override
+        public String toString() {
+            return "Menu [name=" + name + ", price=" + price + ", calories=" + calories + "]";
         }
     }
 
