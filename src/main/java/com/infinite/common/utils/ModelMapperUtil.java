@@ -3,6 +3,7 @@ package com.infinite.common.utils;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.BeanUtils;
 
 import java.util.ArrayList;
@@ -19,6 +20,16 @@ import java.util.List;
 public class ModelMapperUtil {
 
     private static final ModelMapper MODEL_MAPPER = new ModelMapper();
+    
+    static{
+        /**
+         * MatchResult有三种结果：FULL、PARTIAL和NONE（即全部匹配，部分匹配和不匹配）。
+         * 注意，这里有一个部分匹配，也就是我所踩到的坑，在对like进行匹配是，likeNum就被定义为部分匹配。因此，当likeNum大于2时，就不能被转换成boolean类型。
+                                这里解决方法有两种，一种是在设置中，规定必须字段名完全匹配；另一种就是将匹配策略定义为严格。
+         */
+        MODEL_MAPPER.getConfiguration().setFullTypeMatchingRequired(true);
+        MODEL_MAPPER.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+    }
 
     public static <T> T map(Object t, Class<T> r) {
         if (null == t) {

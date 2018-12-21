@@ -1,6 +1,7 @@
 package com.infinite.common.config;
 
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.http.client.HttpClient;
@@ -9,6 +10,7 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.MediaType;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.http.converter.HttpMessageConverter;
@@ -109,14 +111,54 @@ public class RestTemplateConfig {
 				restTemplate.getMessageConverters().set(i, new StringHttpMessageConverter(StandardCharsets.UTF_8));
 			}
 			
+//			/**
+//			 * 2.加入FastJson转换器
+//			 * 注：spring的json转换器默认使用的是Jackson，json字符串和对应的Entity如果有字段对不上就会报错，
+//			 *     而FastJson则不会报错，所以很多时候都会用FastJSON替换默认的Jackson。
+//			 */
+//			if(MappingJackson2HttpMessageConverter.class==messageConverters.get(i).getClass()){
+//				restTemplate.getMessageConverters().set(i, new FastJsonHttpMessageConverter());
+//			}
+			
 			/**
-			 * 2.加入FastJson转换器
-			 * 注：spring的json转换器默认使用的是Jackson，json字符串和对应的Entity如果有字段对不上就会报错，
-			 *     而FastJson则不会报错，所以很多时候都会用FastJSON替换默认的Jackson。
-			 */
-			if(MappingJackson2HttpMessageConverter.class==messageConverters.get(i).getClass()){
-				restTemplate.getMessageConverters().set(i, new FastJsonHttpMessageConverter());
-			}
+             * 2.加入FastJson转换器
+             * 注a：spring的json转换器默认使用的是Jackson，json字符串和对应的Entity如果有字段对不上就会报错，
+             *     而FastJson则不会报错，所以很多时候都会用FastJSON替换默认的Jackson。
+             * 注b：
+             * fastjson从1.1.41升级到1.2.28之后，请求报错：json java.lang.IllegalArgumentException: 'Content-Type' cannot contain wildcard type '*'
+             *  原因是在1.1.41中，FastJsonHttpMessageConverter初始化时，设置了MediaType。
+             *  public FastJsonHttpMessageConverter(){
+             *      super(new MediaType("application", "json", UTF8), new MediaType("application", "*+json", UTF8));
+             *  }
+             *  而在1.2.28中，设置的MediaType为‘/’，即：
+             *  public FastJsonHttpMessageConverter() {
+             *  super(MediaType.ALL);  // 
+             *  }
+             *  后续在org.springframework.http.converter.AbstractHttpMessageConverter.write过程中，又要判断Content-Type不能含有通配符，这应该是一种保护机制,并强制用户自己配置MediaType
+             */
+            if(MappingJackson2HttpMessageConverter.class==messageConverters.get(i).getClass()){
+                 FastJsonHttpMessageConverter fastConverter=new FastJsonHttpMessageConverter();
+                 List<MediaType> supportedMediaTypes = new ArrayList<>();
+                 supportedMediaTypes.add(MediaType.APPLICATION_JSON);
+                 supportedMediaTypes.add(MediaType.APPLICATION_JSON_UTF8);
+                 supportedMediaTypes.add(MediaType.APPLICATION_ATOM_XML);
+                 supportedMediaTypes.add(MediaType.APPLICATION_FORM_URLENCODED);
+                 supportedMediaTypes.add(MediaType.APPLICATION_OCTET_STREAM);
+                 supportedMediaTypes.add(MediaType.APPLICATION_PDF);
+                 supportedMediaTypes.add(MediaType.APPLICATION_RSS_XML);
+                 supportedMediaTypes.add(MediaType.APPLICATION_XHTML_XML);
+                 supportedMediaTypes.add(MediaType.APPLICATION_XML);
+                 supportedMediaTypes.add(MediaType.IMAGE_GIF);
+                 supportedMediaTypes.add(MediaType.IMAGE_JPEG);
+                 supportedMediaTypes.add(MediaType.IMAGE_PNG);
+                 supportedMediaTypes.add(MediaType.TEXT_EVENT_STREAM);
+                 supportedMediaTypes.add(MediaType.TEXT_HTML);
+                 supportedMediaTypes.add(MediaType.TEXT_MARKDOWN);
+                 supportedMediaTypes.add(MediaType.TEXT_PLAIN);
+                 supportedMediaTypes.add(MediaType.TEXT_XML);
+                 fastConverter.setSupportedMediaTypes(supportedMediaTypes);
+                restTemplate.getMessageConverters().set(i, fastConverter);
+            }
 		}
 	}
 
