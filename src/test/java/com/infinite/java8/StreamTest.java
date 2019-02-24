@@ -3,6 +3,7 @@ package com.infinite.java8;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class StreamTest {
     
@@ -48,6 +49,15 @@ public class StreamTest {
         
         List<String> demoNameList=demoList.stream().filter(e -> e.getStatus()==1).map(Demo::getName).sorted().collect(Collectors.toList());
         System.out.println(demoNameList);
+        
+        /**
+         * 流只能消费一次
+         */
+        List<String> strList=Arrays.asList("apple","orange","pear","banana");
+        Stream<String> srtStream=strList.stream();
+        srtStream.forEach(e -> System.out.println(e));
+        //运行会提示：stream has already been operated upon or closed
+        srtStream.forEach(e -> System.out.println(e));
         
     }
     
