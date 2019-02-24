@@ -25,11 +25,10 @@ public class TaskPoolConfig {
 		ThreadPoolTaskExecutor executor=new ThreadPoolTaskExecutor();
 		executor.setCorePoolSize(10);
 		executor.setMaxPoolSize(20);
-		executor.setQueueCapacity(200);
+		executor.setQueueCapacity(50);
 		executor.setKeepAliveSeconds(60);
 		executor.setThreadNamePrefix("allen-task-");
 		executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
 		return executor;
 	}
-
 }
