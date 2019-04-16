@@ -67,23 +67,23 @@ public class GolbalScheduledTaskConfig {
 //     */
     
     
-    /**
-     * *******spring多个定时任务之间实现并行执行 ,使用自定义线程池实现  START****************
-     * 自定义线程池已配置，见：com.infinite.common.config.TaskPoolConfig
-     */
-    @Scheduled(cron="0/1 * * * * ?")
-    @Async
-    public void task5(){
-        System.out.println(Thread.currentThread().getName()+": task3，"+System.currentTimeMillis());
-        while(true){
-            try {
-                TimeUnit.SECONDS.sleep(1);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            } 
-        }
-    }
-    /**
-     * *******spring多个定时任务之间实现并行执行 ,使用自定义线程池实现  End****************
-     */
+//    /**
+//     * *******spring多个定时任务之间实现并行执行 ,使用自定义线程池实现  START****************
+//     * 自定义线程池已配置，见：com.infinite.common.config.TaskPoolConfig
+//     */
+//    @Scheduled(cron="0/1 * * * * ?")
+//    @Async
+//    public void task5(){
+//        System.out.println(Thread.currentThread().getName()+": task3，"+System.currentTimeMillis());
+//        while(true){
+//            try {
+//                TimeUnit.SECONDS.sleep(1);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            } 
+//        }
+//    }
+//    /**
+//     * *******spring多个定时任务之间实现并行执行 ,使用自定义线程池实现  End****************
+//     */
 }

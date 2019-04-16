@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.infinite.common.annotation.LoginRequire;
+import com.infinite.common.mq.redismq.Publisher;
 import com.infinite.controller.vo.ResultBean;
 import com.infinite.dao.po.UserExtendInfo;
 import com.infinite.dao.po.UserInfo;
@@ -94,6 +95,15 @@ public class UserInfoController {
 	    //return new ResultBean<>(this.userInfoCache.getUserInfo(userId));
 	    //return new ResultBean<>(this.userInfoCache.getUserInfoByMutex(userId));
 	    return new ResultBean<UserInfo>(this.userInfoCache.getUserInfoByValueTime(userId));
+	}
+	
+	@Autowired
+	private Publisher publisher;
+	
+	@RequestMapping("/testRedisMQ")
+	public ResultBean<String> testRedisMQ(String msg){
+	    publisher.sendMessage(msg);
+	    return new ResultBean<>();
 	}
 
 }

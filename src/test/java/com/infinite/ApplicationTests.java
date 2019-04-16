@@ -1,14 +1,17 @@
 package com.infinite;
 
 import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.client.RestTemplate;
 
+import com.infinite.common.lock.RedisDistributedLock;
 import com.infinite.service.UserInfoService;
 
 @RunWith(SpringRunner.class)
@@ -23,6 +26,9 @@ public class ApplicationTests {
 	
 	@Autowired
 	private UserInfoService userInfoService;
+	
+	@Autowired
+	private StringRedisTemplate stringRedisTemplate;
 
 	@Test
 	public void contextLoads() {
@@ -52,6 +58,25 @@ public class ApplicationTests {
 	public void testUserService(){
 	    //this.userInfoService.testTransaction1();
 	    this.userInfoService.testTransaction2();
+	}
+	
+	@Test
+	public void testRedisDistributeLock(){
+	    System.out.println("test redis distribute lock start======");
+	    for (int i = 0; i < 5; i++) {
+	        new Thread(()->{
+	            RedisDistributedLock lock=new RedisDistributedLock(stringRedisTemplate);
+                if(lock.tryLock("test_redis_distribute_lock", 60000)){
+                    try {
+                        System.out.println(Thread.currentThread().getName()+" acquire lock success!");
+                    } finally {
+                        lock.unLock("test_redis_distribute_lock");
+                    }
+                }else{
+                    System.out.println(Thread.currentThread().getName()+" acquire lock failure!");
+                }
+	        }).start();
+	    }
 	}
 
 }
