@@ -1,5 +1,8 @@
 package com.infinite.common.constant;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -20,6 +23,9 @@ public class Constants {
 	
 	/**登录用户信息缓存在redis中的过期时间（单位：分钟）**/
 	public static final long CUR_USER_CACHING_EXPIRE_TIME=30;
+	
+    /**SQL打印拦截器开关：打开状态**/
+    public static final String SQL_PRINT_SWITCH="1";
 	
 	/**
 	 * 
@@ -155,5 +161,34 @@ public class Constants {
 
 	}
 
+	/**
+     * 
+    * @ClassName: DataFilterConstant
+    * @Description: 数据权限拦截常量配置
+    * @author chenliqiao
+    * @date 2019年1月16日 上午10:23:12
+    *
+     */
+    public static class DataFilterConstant{
+        
+        /**需要进行拦截的SQL所属namespace**/
+        public static final List<String> namespaces;
+        
+        static{
+            namespaces=new ArrayList<String>();
+            namespaces.add("cn.com.infinite.cpms.dao.ChannelInfoMapper");
+            namespaces.add("cn.com.infinite.cpms.dao.CardDateReportInfoMapper");
+            namespaces.add("cn.com.infinite.cpms.dao.CardInfoMapper");
+            namespaces.add("cn.com.infinite.cpms.dao.CardMonthReportInfoMapper");
+            namespaces.add("cn.com.infinite.cpms.dao.CardMonthReportLogMapper");
+            namespaces.add("cn.com.infinite.cpms.dao.ProjectNumberInfoMapper");
+            
+            namespaces.add("cn.com.infinite.cpms.dao.ext.CardInfoExtendMapper");
+            namespaces.add("cn.com.infinite.cpms.dao.ext.CardDateReportInfoExtendMapper");
+            namespaces.add("cn.com.infinite.cpms.dao.ext.CardMonthReportInfoExtendMapper");
+            namespaces.add("cn.com.infinite.cpms.dao.ext.ChannelInfoExtendMapper");
+            namespaces.add("cn.com.infinite.cpms.dao.ext.ProjectNumberInfoExtendMapper");
+        }
+    }
 
 }

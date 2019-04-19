@@ -2,9 +2,11 @@
 <!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
 <configuration>
     <plugins>
-        <!-- com.github.pagehelper为PageHelper类所在包名 -->
-        <plugin interceptor="com.github.pagehelper.PageHelper">
-            <property name="dialect" value="mysql" />
+<!--         自定义mybatis插件（用于SQL打印）
+        <plugin interceptor="cn.com.infinite.cpms.common.interceptor.SqlInterceptor"></plugin> -->
+        <!-- PageHelper分页插件 -->
+        <plugin interceptor="com.github.pagehelper.PageInterceptor">
+            <property name="helperDialect" value="mysql" />
             <!-- 该参数默认为false 设置为true时，会将RowBounds第一个参数offset当成pageNum页码使用 和startPage中的pageNum效果一样 -->
             <property name="offsetAsPageNum" value="true" />
             <!-- 该参数默认为false 设置为true时，使用RowBounds分页会进行count查询 -->
@@ -20,5 +22,8 @@
             <!--always总是返回PageInfo类型,check检查返回类型是否为PageInfo,none返回Page -->
             <property name="returnPageInfo" value="check" />
         </plugin>
+        <plugin interceptor="com.github.pagehelper.QueryInterceptor"/>
+        <!-- 自定义mybatis插件（用于数据权限） -->
+        <plugin interceptor="cn.com.infinite.cpms.common.interceptor.DataFilterInterceptor"></plugin>
     </plugins>
 </configuration>

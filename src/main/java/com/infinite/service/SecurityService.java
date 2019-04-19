@@ -23,10 +23,13 @@ import com.infinite.common.annotation.PermissionRequire;
 import com.infinite.common.config.RemoteCallConfig;
 import com.infinite.common.constant.Constants;
 import com.infinite.common.utils.JsonUtil;
+import com.infinite.common.utils.LocalUserCacheUtil;
 import com.infinite.controller.vo.ResultBean;
 import com.infinite.dao.po.UserInfo;
 import com.infinite.service.bo.CurrentUserInfo;
+import com.infinite.service.dto.CurrentUserCacheDTO;
 import com.infinite.service.dto.SsoUserInfo;
+
 
 /**
  * 
@@ -87,6 +90,8 @@ public class SecurityService {
             //缓存登录信息
             this.saveLoginInfoToCache(request.getHeader(Constants.TOKEN));
             
+            //缓存登录信息到request
+            this.cacheLoginInfoToRequest(request, request.getHeader(Constants.TOKEN));
 		} catch (Exception e) {
 			LOG.error(Constants.Log.MESSAGE,"auth error!",e);
 			this.setSsoLoginUrl(result, Constants.ApiResult.SYSTEM_ERROR.getCode(),Constants.ApiResult.SYSTEM_ERROR.getMessage());
@@ -180,4 +185,18 @@ public class SecurityService {
 	}
     
 
+	/**
+     * 缓存登录信息到request，便于之后使用
+     */
+    private void cacheLoginInfoToRequest(HttpServletRequest request,String token){
+        //将token存在request中，便于之后使用
+        request.setAttribute(Constants.TOKEN, token);
+        
+        //将channelId存在request中，便于之后使用
+        String curUserJson=(String)this.redisTemplate.opsForValue().get(token);
+        CurrentUserCacheDTO userCache=StringUtils.isNotEmpty(curUserJson)?JsonUtil.jsonToBean(curUserJson, CurrentUserCacheDTO.class):null;
+        if(userCache!=null){
+            LocalUserCacheUtil.set(userCache);
+        } 
+    }
 }
