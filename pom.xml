@@ -8,8 +8,8 @@
 	<version>1.0</version>
 	<packaging>jar</packaging>
 
-	<name>material-manage-platform</name>
-	<description>material-manage-platform</description>
+	<name>allen-project</name>
+	<description>allen-project</description>
 
 	<parent>
 		<groupId>org.springframework.boot</groupId>

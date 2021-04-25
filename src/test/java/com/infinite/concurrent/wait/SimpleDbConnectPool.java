@@ -3,6 +3,7 @@ package com.infinite.concurrent.wait;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 public class SimpleDbConnectPool {
     
@@ -30,7 +31,7 @@ public class SimpleDbConnectPool {
     }
     
     
-    public DbConnection getConnection() throws Exception{
+    public DbConnection getConnectionFromPool() throws Exception{
         synchronized (lock) {
             //不符合条件，wait
             while(!hashFreeConnection()){
@@ -39,11 +40,18 @@ public class SimpleDbConnectPool {
             
             //符合条件
             Optional<DbConnection> optional=minPool.stream().filter(e ->e.isFree).findFirst();
+            DbConnection connection=null;
             if(optional.isPresent()){
-                return optional.get();
+            	connection=optional.get();
+            	connection.setFree(true);
             }
-            return null;
+            return connection;
         }
+    }
+    
+    public void returnConnection(DbConnection connection){
+    	connection.setFree(true);
+    	lock.notifyAll();
     }
     
     private boolean hashFreeConnection(){
@@ -58,6 +66,33 @@ public class SimpleDbConnectPool {
         public DbConnection(){}
         
         public DbConnection(boolean isFree){this.isFree=isFree;}
+
+		public boolean isFree() {
+			return isFree;
+		}
+
+		public void setFree(boolean isFree) {
+			this.isFree = isFree;
+		}
     }
+    
+    public static void main(String[] args) {
+    	SimpleDbConnectPool pool=new SimpleDbConnectPool();
+		for (int i = 0; i < 10; i++) {
+			new Thread(()->{
+				DbConnection connection=null;
+				try {
+					connection=pool.getConnectionFromPool();
+					System.out.println("获取连接对象->"+connection);
+					TimeUnit.SECONDS.sleep(2);
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}finally {
+					pool.returnConnection(connection);
+				}
+			}).start();
+		}
+	}
 
 }
